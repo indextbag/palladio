@@ -1,4 +1,8 @@
 cmake_minimum_required(VERSION 3.8)
+cmake_policy(SET CMP0068 NEW)
+
+
+### project definition
 
 project(palladio_root CXX)
 
@@ -37,7 +41,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/dependencies.cmake)
 
 set(PLD_VERSION_MAJOR 1)
 set(PLD_VERSION_MINOR 1)
-set(PLD_VERSION_PATCH 1)
+set(PLD_VERSION_PATCH 2)
 if(NOT PLD_VERSION_BUILD)
     set(PLD_VERSION_BUILD DEV)
 endif()
@@ -53,11 +57,17 @@ message(STATUS "Using PLD_VERSION = ${PLD_VERSION}")
 
 ### setup sub-projects
 
-add_subdirectory(codec)
+# TODO: we probably need to build codecs with ExternalProject_Add and use AC81
+include(ExternalProject)
+ExternalProject_Add(codec
+	SOURCE_DIR ${CMAKE_SOURCE_DIR}/codec
+	CMAKE_ARGS -DCMAKE_CXX_COMPILER=/Applications/Xcode833.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++
+)
+#add_subdirectory(codec)
 add_subdirectory(palladio)
-add_dependencies(palladio palladio_codec)
+#add_dependencies(palladio palladio_codec)
 
-add_subdirectory(test EXCLUDE_FROM_ALL)
+#add_subdirectory(test EXCLUDE_FROM_ALL)
 
 
 ### setup installation target
@@ -65,8 +75,10 @@ add_subdirectory(test EXCLUDE_FROM_ALL)
 if (NOT HOUDINI_DSO_PATH)
 	if(PLD_WINDOWS)
 		set(HOUDINI_DSO_PATH "$ENV{HOMEDRIVE}$ENV{HOMEPATH}/Documents/houdini${Houdini_VERSION_MAJOR}.${Houdini_VERSION_MINOR}/dso")
-	else()
+	elseif(PLD_LINUX)
 		set(HOUDINI_DSO_PATH "$ENV{HOME}/houdini${Houdini_VERSION_MAJOR}.${Houdini_VERSION_MINOR}/dso")
+	elseif(PLD_MACOS)
+		set(HOUDINI_DSO_PATH "/Users/Shared/houdini${Houdini_VERSION_MAJOR}.${Houdini_VERSION_MINOR}/dso")
 	endif()
 endif()
 message(STATUS "HOUDINI_DSO_PATH = ${HOUDINI_DSO_PATH}")
