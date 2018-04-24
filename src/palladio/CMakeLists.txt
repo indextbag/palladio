@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
+cmake_policy(SET CMP0068 NEW)
 
 
 ### project definition
@@ -7,6 +8,8 @@ project(palladio CXX)
 
 
 ### target definition
+
+set(CMAKE_INSTALL_RPATH "@loader_path/libcom.esri.prt.core.dylib")
 
 add_library(${PROJECT_NAME} SHARED
         PalladioMain.cpp
@@ -77,6 +80,9 @@ elseif(PLD_MACOS)
 	elseif(${CMAKE_BUILD_TYPE} STREQUAL "Release")
 		target_compile_options(${PROJECT_NAME} PRIVATE -O3)
 	endif()
+
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+            INSTALL_RPATH "@loader_path")
 endif()
 
 
